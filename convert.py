@@ -19,6 +19,15 @@ def lines(*cmd, keep_trailing_newline=False):
 
   return lines
 
+
+def line(*cmd):
+  _lines = lines(*cmd)
+  if len(_lines) == 1:
+    return _lines[0]
+  else:
+    raise ValueError(f'Expected 1 line, found {len(_lines)}:\n\t%s' % '\n\t'.join(_lines))
+
+
 def run(*cmd):
   print(f'Running: {cmd}')
   check_call(cmd)
@@ -42,8 +51,7 @@ def main():
   remote = args.remote
   if not args.remote:
     print('Looking for remote:')
-    print('\n'.join(lines('git','remote','-vv')))
-    [remote] = lines('git','remote')
+    remote = line('git','remote')
 
   revision = args.revision or '%s/%s' % (remote, env['GITHUB_BASE_REF'])
   fmt = args.fmt
@@ -85,25 +93,23 @@ def main():
     print(f'Found {fmt} files that need updating: {updates}')
 
     branch = args.branch or env['GITHUB_HEAD_REF']
+    repository = args.repository or env['GITHUB_REPOSITORY']
 
-    msg = f'CI: update .{fmt} files via nbconvert'
     user = args.user
+    if not user:
+      user = line('git','log','-n','1','--format=%an')
+      print(f'Got user name from last PR commit: {user}')
+
     email = args.email
+    if not email:
+      email = line('git','log','-n','1','--format=%ae')
+      print(f'Got user email from last PR commit: {email}')
+
     token = args.token
     print(f"Tokens equal? {token == env['ACTIONS_RUNTIME_TOKEN']}")
     if not token: token = env['ACTIONS_RUNTIME_TOKEN']
 
-    repository = args.repository or env['GITHUB_REPOSITORY']
-
-    if not args.user or not args.email:
-      from requests import get as GET
-      resp = GET('https://api.github.com/user', headers=dict(Authorization=f'token {token}'))
-      resp.raise_for_status()
-
-      import json
-      u = json.loads(resp.content.decode())
-      user = user or u['login']
-      email = email or u['email']
+    msg = f'CI: update .{fmt} files via nbconvert'
 
     run('git','config','user.name',user)
     run('git','config','user.email',email)
