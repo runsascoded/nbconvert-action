@@ -1,14 +1,19 @@
 from subprocess import check_call, check_output, CalledProcessError
 
 
-def lines(*cmd, keep_trailing_newline=False):
-  print(f'Running: {cmd}')
+def parse_cmd(cmd):
   if len(cmd) == 1 and (isinstance(cmd[0], list) or isinstance(cmd[0], tuple)):
     cmd = cmd[0]
+  return [ str(arg) for arg in cmd ]
+
+
+def lines(*cmd, keep_trailing_newline=False):
+  cmd = parse_cmd(cmd)
+  print(f'Running: {cmd}')
   lines = [
     line.strip()
     for line in
-    check_output([ str(arg) for arg in cmd ]).decode().split('\n')
+    check_output(cmd).decode().split('\n')
   ]
 
   if not keep_trailing_newline and lines and not lines[-1]:
@@ -26,8 +31,9 @@ def line(*cmd):
 
 
 def run(*cmd):
+  cmd = parse_cmd(cmd)
   print(f'Running: {cmd}')
-  check_call([ str(arg) for arg in cmd ])
+  check_call(cmd)
 
 
 def check(*cmd):

@@ -10,8 +10,8 @@ inputs:
     default: ${{github.token}}
 
 runs:
-  using: 'docker'
-  image: 'docker://runsascoded/nbconvert-action'
+  using: docker
+  image: docker://runsascoded/nbconvert-action:v1.1
   args:
-    - '-t'
+    - -t
     - ${{inputs.token}}
