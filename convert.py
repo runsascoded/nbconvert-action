@@ -1,22 +1,25 @@
 from argparse import ArgumentParser
 from os import environ as env
 from pathlib import Path
+from sys import stderr
+
 from run import *
 
 
 def main():
   parser = ArgumentParser()
-  parser.add_argument('-a', '--all', action='store_true', help='Run nbconvert on .ipynb files even if they don\'t seem changed since the base revision')
-  parser.add_argument('-b', '--branch', help='Current Git branch (and push target for any changes)')
+  parser.add_argument('-a', '--all', action='store_true', help='Inspect all .ipynb files (by default, notebooks are only checked if they already have a counterpart in the target format checked in to the repo')
+  parser.add_argument('-b', '--branch', default=env.get('GITHUB_HEAD_REF'), help='Current Git branch (and push target for any changes; default: $GITHUB_HEAD_REF)')
   parser.add_argument('-e', '--email', required=False, help='user.email for Git commit')
   parser.add_argument('-f', '--force', action='store_true', help='Run nbconvert on .ipynb files even if they don\'t seem changed since the base revision')
   parser.add_argument('-m', '--remote', required=False, help='Git remote to push changes to; defaults to the only git remote, where applicable')
-  parser.add_argument('-p', '--repository', help='Git repository (org/repo) to push to')  # TODO: infer from existing remote
+  parser.add_argument('-p', '--repository', default=env.get('GITHUB_REPOSITORY'), help='Git repository (org/repo) to push to (default: $GITHUB_REPOSITORY)')
   parser.add_argument('-o', '--fmt', default='md', help='Format to convert files to (passed to nbconvert; default: markdown)')
-  parser.add_argument('-r', '--revision', help='Git revision (or range) to compute diffs against')
+  parser.add_argument('-r', '--revision', help='Git revision (or range) to compute diffs against (default: <remote>/$GITHUB_BASE_REF, where <remote> is the --remote flag value or its fallback Git remote')
   parser.add_argument('-t', '--token', help='Git access token for pushing changes')
   parser.add_argument('-u', '--user', required=False, help='user.name for Git commit')
   parser.add_argument('path', nargs='*', help='.ipynb paths to convert')
+
   args = parser.parse_args()
   print(f'args: {args.__dict__}')
 
@@ -39,10 +42,36 @@ def main():
         raise ValueError(f'First "--" at position {idx} (expected 0)')
       paths = paths[1:]
 
-  if not paths:
-    paths = lines('git','ls-files','*.ipynb')
+    if args.all:
+      stderr.write(f'"--all"/"-a" flag is unused when paths are explicitly passed\n')
 
-  print(f'Checking paths: {paths}')
+  if not paths:
+    all_nbs = lines('git','ls-files','*.ipynb')
+    if args.all:
+      paths = all_nbs
+    else:
+      paths = set(lines('git','ls-files',f'*.{fmt}'))
+      def filter_nb(nb):
+        base = nb.rsplit('.', 1)[0]
+        path = f'{path}.{fmt}'
+        if path in paths:
+          return [nb]
+        else:
+          return []
+
+      paths = [
+        path
+        for nb in all_nbs
+        for path in filter_nb(nb)
+      ]
+
+  if not paths:
+    print(f'No notebooks found to check')
+  elif len(paths) == 1:
+    print(f'Checking {paths[0]} for diffs since {revision}')
+  else:
+    print(f'Checking {len(paths)} notebook paths for diffs since {revision}:\n\t%s' % '\n\t'.join(paths))
+
   changed_nbs = lines(['git','diff','--name-only',revision,'--'] + paths)
   if changed_nbs:
     print(f'Found notebook diffs: {changed_nbs}')
@@ -61,8 +90,8 @@ def main():
   if updates:
     print(f'Found {fmt} files that need updating: {updates}')
 
-    branch = args.branch or env['GITHUB_HEAD_REF']
-    repository = args.repository or env['GITHUB_REPOSITORY']
+    branch = args.branch
+    repository = args.repository
 
     user = args.user
     if not user:
@@ -75,8 +104,7 @@ def main():
       print(f'Got user email from last PR commit: {email}')
 
     token = args.token
-    print(f"Tokens equal? {token == env['ACTIONS_RUNTIME_TOKEN']}")
-    if not token: token = env['ACTIONS_RUNTIME_TOKEN']
+    #if not token: token = env['ACTIONS_RUNTIME_TOKEN']
 
     msg = f'CI: update .{fmt} files via nbconvert'
 
@@ -87,7 +115,7 @@ def main():
     run('git','log','--oneline','--graph')
     run('git','push',remote,f'HEAD:{branch}')
   else:
-    print(f'{len(paths)} notebooks already up-to-date')
+    print(f'{len(nbs)} notebooks already up-to-date')
 
 if __name__ == '__main__':
   main()
