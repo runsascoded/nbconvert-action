@@ -1,36 +1,7 @@
 from argparse import ArgumentParser
 from os import environ as env
 from pathlib import Path
-from subprocess import check_call, check_output, CalledProcessError
-
-
-def lines(*cmd, keep_trailing_newline=False):
-  print(f'Running: {cmd}')
-  if len(cmd) == 1 and (isinstance(cmd[0], list) or isinstance(cmd[0], tuple)):
-    cmd = cmd[0]
-  lines = [
-    line.strip()
-    for line in
-    check_output(cmd).decode().split('\n')
-  ]
-
-  if not keep_trailing_newline and lines and not lines[-1]:
-    lines = lines[:-1]
-
-  return lines
-
-
-def line(*cmd):
-  _lines = lines(*cmd)
-  if len(_lines) == 1:
-    return _lines[0]
-  else:
-    raise ValueError(f'Expected 1 line, found {len(_lines)}:\n\t%s' % '\n\t'.join(_lines))
-
-
-def run(*cmd):
-  print(f'Running: {cmd}')
-  check_call(cmd)
+from run import *
 
 
 def main():
@@ -42,6 +13,7 @@ def main():
   parser.add_argument('-e', '--email', required=False, help='user.email for Git commit')
   parser.add_argument('-b', '--branch', help='Current Git branch (and push target for any changes)')
   parser.add_argument('-f', '--force', action='store_true', help='Run nbconvert on .ipynb files even if they don\'t seem changed since the base revision')
+  parser.add_argument('-s', '--secrets', help='Test arg: print full GH secrets context object')
   parser.add_argument('--fmt', default='md', help='Format to convert files to (passed to nbconvert; default: markdown)')
   parser.add_argument('--remote', required=False, help='Git remote to push changes to; defaults to the only git remote, where applicable')
   parser.add_argument('path', nargs='*', help='.ipynb paths to convert')

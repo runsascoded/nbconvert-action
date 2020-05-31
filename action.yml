@@ -7,4 +7,4 @@ inputs:
     default: '--help'
 runs:
   using: 'docker'
-  image: 'Dockerfile'
+  image: 'runsascoded/nbconvert-action'
