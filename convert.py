@@ -20,6 +20,7 @@ def main():
   parser.add_argument('-r', '--revision', help='Git revision (or range) to compute diffs against (default: <remote>/$GITHUB_BASE_REF, where <remote> is the --remote flag value or its fallback Git remote')
   parser.add_argument('-t', '--token', help='Git access token for pushing changes')
   parser.add_argument('-u', '--user', required=False, help='user.name for Git commit')
+  parser.add_argument('-x', '--execute', action='store_true', help='When set, execute notebooks while converting them')
   parser.add_argument('path', nargs='*', help='.ipynb paths to convert')
 
   args = parser.parse_args()
@@ -86,7 +87,11 @@ def main():
   for path in nbs:
     name = path.rsplit('.', 1)[0]
     to = 'markdown' if fmt == 'md' else fmt
-    run('jupyter', 'nbconvert', path, '--to', to )
+    if args.execute:
+      exec_args = ['--execute']
+    else:
+      exec_args = []
+    run('jupyter', 'nbconvert', exec_args, path, '--to', to )
 
   updates = lines('git','diff','--name-only')
   if updates:
