@@ -50,8 +50,8 @@ def main():
 
   remote = args.remote
   if not args.remote:
-    print('Looking for remote:')
     remote = line('git','remote')
+    print(f'Using sole remote: {remote}')
 
   revision = args.revision or '%s/%s' % (remote, env['GITHUB_BASE_REF'])
   fmt = args.fmt
@@ -114,7 +114,7 @@ def main():
     run('git','config','user.name',user)
     run('git','config','user.email',email)
     run('git','commit','-a','-m',msg)
-    run('git', 'remote', 'set-url', remote, f'https://x-access-token:{token}@github.com/{args.repository}')
+    run('git', 'remote', 'set-url', remote, f'https://x-access-token:{token}@github.com/{repository}')
     run('git','log','--oneline','--graph')
     run('git','push',remote,f'HEAD:{branch}')
   else:
