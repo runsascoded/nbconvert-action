@@ -90,6 +90,9 @@ def main():
     user = args.user
     email = args.email
     token = args.token
+    print(f"Tokens equal? {token == env['ACTIONS_RUNTIME_TOKEN']}")
+    if not token: token = env['ACTIONS_RUNTIME_TOKEN']
+
     repository = args.repository or env['GITHUB_REPOSITORY']
 
     if not args.user or not args.email:
