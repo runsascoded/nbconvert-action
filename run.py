@@ -30,7 +30,7 @@ def run(*cmd):
   check_call([ str(arg) for arg in cmd ])
 
 
-def check(cmd):
+def check(*cmd):
   try:
     run(*cmd)
     return True
