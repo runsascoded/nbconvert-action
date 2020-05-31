@@ -20,11 +20,30 @@ def main():
   if not dry_run:
     run('docker','push',dst)
     if tag:
+
+      import yaml
+      with open('action.yml','r') as f:
+        action = yaml.safe_load(f)
+
+      image = action['runs']['image']
+
+      dst_uri = f'docker://{dst}'
+
+      if image != dst_uri:
+        print(f'Updating action.yml docker image: {image} → {dst_uri}')
+        action['runs']['image'] = dst_uri
+        with open('action.yml','w') as f:
+          yaml.safe_dump(action, f, sort_keys=False)
+        print(f'Updated action.yml:')
+        run('git','diff','--','action.yml')
+
       if not check('git','diff','--quiet'):
         msg = args.message
-        if not msg:
-          raise ValueError(f'Uncommitted changes found; aborting (pass a commit message with -m to commit, tag and push them)')
-        run('git','commit','-am',msg)
+        if msg:
+          run('git','commit','-am',msg)
+        else:
+          run('git','commit','-a')
+
       run('git','tag',tag)
       run('git','push','--tags')
 
