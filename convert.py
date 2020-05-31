@@ -79,6 +79,8 @@ def main():
 
   updates = lines('git','diff','--name-only')
 
+  run('env')
+
   if updates:
     print(f'Found {fmt} files that need updating: {updates}')
 
@@ -89,8 +91,6 @@ def main():
     email = args.email
     token = args.token
     repository = args.repository or env['GITHUB_REPOSITORY']
-
-    run('env')
 
     if not args.user or not args.email:
       from requests import get as GET
