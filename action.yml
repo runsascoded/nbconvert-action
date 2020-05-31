@@ -11,7 +11,7 @@ inputs:
 
 runs:
   using: 'docker'
-  image: 'docker://runsascoded/nbconvert-action'
+  image: 'docker://runsascoded/nbconvert-action:v1.1'
   args:
     - '-t'
     - ${{inputs.token}}
