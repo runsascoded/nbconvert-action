@@ -45,8 +45,14 @@ def main():
         else:
           run('git','commit','-a')
 
-      run('git','tag','-f',tag)
-      run('git','push','--tags')
+      if args.force:
+        print('Force-{tagging,pushing}…')
+        force_args = ['-f']
+      else:
+        force_args = []
+
+      run(['git','tag'] + force_args + [tag])
+      run(['git','push'] + force_args + ['--tags'])
 
 
 if __name__ == '__main__':
