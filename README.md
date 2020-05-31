@@ -1,21 +1,18 @@
 # `nbconvert` GitHub Action
 Automatically convert `.ipynb` files in pull requests to Markdown (or other formats supported by [`nbconvert`])
 
-[Here's an example `.github/workflows/main.yml`](https://github.com/runsascoded/ur/blob/70e691de7a58f198d824f8e19bfdf2333e34aded/.github/workflows/main.yml#L11-L22) (from [`ur`](https://github.com/runsascoded/ur)):
+This repo uses itself to convert its README from an `.ipynb` to an `.md`; see [`.github/workflows/main.yml`](.github/workflows/main.yml):
 ```yaml
 steps:
-# Check out repository
-- uses: actions/checkout@v2
+- name: Check out repository
+  uses: actions/checkout@v2
   with:
     ref: ${{ github.head_ref }}
 
-# Add refs to PR head and base
-- name: Fetch origin/master
+- name: Add PR base ref
   run: |
     git fetch --depth=1 origin +refs/heads/${{github.base_ref}}:refs/remotes/origin/${{github.base_ref}}
-    git fetch --depth=1 origin +refs/heads/${{github.head_ref}}:refs/remotes/origin/${{github.head_ref}}
 
-# Add nbconvert action
 - name: nbconvert README
   uses: runsascoded/nbconvert@v1.1
 ```
@@ -29,7 +26,7 @@ By default:
 Many of these behaviors are configurable; see [`convert.py`](convert.py) or run `convert.py -h` to view available options.
 
 
-[`nbconvert`]: https://nbconvert.readthedocs.io/en/latest/)
+[`nbconvert`]: https://nbconvert.readthedocs.io/en/latest/
 
 
 ```python
