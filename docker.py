@@ -6,9 +6,10 @@ from run import *
 
 def main():
   parser = ArgumentParser()
-  parser.add_argument('-r', '--repository', default='runsascoded/nbconvert-action', help='Docker Hub repository to push to')
-  parser.add_argument('-n', '--dry_run', action='store_true', help='When set, skip pushing to Docker Hub (and Git tag to GitHub, if present)')
+  parser.add_argument('-f', '--force', action='store_true', help='When set, pass "-f" to `git tag` and `git push` (overwrite/accept any existing Git tag)')
   parser.add_argument('-m', '--message', help='Commit message to use, if unstaged changes are to be committed as part of the push')
+  parser.add_argument('-n', '--dry_run', action='store_true', help='When set, skip pushing to Docker Hub (and Git tag to GitHub, if present)')
+  parser.add_argument('-r', '--repository', default='runsascoded/nbconvert-action', help='Docker Hub repository to push to')
   parser.add_argument('-t', '--tag', help='Docker (and Git) tag to use (optional; only Docker is pushed, with "latest" tag, by default)')
   args = parser.parse_args()
 
@@ -44,7 +45,7 @@ def main():
         else:
           run('git','commit','-a')
 
-      run('git','tag',tag)
+      run('git','tag','-f',tag)
       run('git','push','--tags')
 
 
