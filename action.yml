@@ -1,0 +1,10 @@
+name: nbconvert
+description: Convert Jupyter notebooks to Markdown (or other formats supported by nbconvert)
+inputs:
+  args:
+    description: 'Arguments to pass to convert.py'
+    required: true
+    default: '--help'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
