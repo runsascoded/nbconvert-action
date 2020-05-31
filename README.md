@@ -29,8 +29,9 @@ Many of these behaviors are configurable; see [`convert.py`](convert.py) or run 
 [`nbconvert`]: https://nbconvert.readthedocs.io/en/latest/
 
 
-```python
-!convert.py -h
+```bash
+%%bash
+convert.py -h
 ```
 
     usage: convert.py [-h] [-a] [-b BRANCH] [-e EMAIL] [-f] [-m REMOTE] [-o FMT]
