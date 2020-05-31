@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from argparse import ArgumentParser
 from os import environ as env
 from pathlib import Path
@@ -13,8 +15,8 @@ def main():
   parser.add_argument('-e', '--email', required=False, help='user.email for Git commit')
   parser.add_argument('-f', '--force', action='store_true', help='Run nbconvert on .ipynb files even if they don\'t seem changed since the base revision')
   parser.add_argument('-m', '--remote', required=False, help='Git remote to push changes to; defaults to the only git remote, where applicable')
-  parser.add_argument('-p', '--repository', default=env.get('GITHUB_REPOSITORY'), help='Git repository (org/repo) to push to (default: $GITHUB_REPOSITORY)')
   parser.add_argument('-o', '--fmt', default='md', help='Format to convert files to (passed to nbconvert; default: markdown)')
+  parser.add_argument('-p', '--repository', default=env.get('GITHUB_REPOSITORY'), help='Git repository (org/repo) to push to (default: $GITHUB_REPOSITORY)')
   parser.add_argument('-r', '--revision', help='Git revision (or range) to compute diffs against (default: <remote>/$GITHUB_BASE_REF, where <remote> is the --remote flag value or its fallback Git remote')
   parser.add_argument('-t', '--token', help='Git access token for pushing changes')
   parser.add_argument('-u', '--user', required=False, help='user.name for Git commit')
