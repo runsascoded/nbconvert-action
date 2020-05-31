@@ -53,7 +53,7 @@ def main():
       paths = set(lines('git','ls-files',f'*.{fmt}'))
       def filter_nb(nb):
         base = nb.rsplit('.', 1)[0]
-        path = f'{path}.{fmt}'
+        path = f'{base}.{fmt}'
         if path in paths:
           return [nb]
         else:
