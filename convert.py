@@ -26,7 +26,8 @@ def main():
   parser.add_argument('--test', help='Test of shell lexing "--args"')
   parser.add_argument('path', nargs='*', help='.ipynb paths to convert')
 
-  extra_args = parser.parse_known_args().args
+  extra_args, _ = parser.parse_known_args()
+  extra_args = extra_args.args
   if extra_args:
     extra_args = shlex.split(extra_args)
     print(f'post-shlex --args: {extra_args}')
