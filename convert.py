@@ -27,6 +27,7 @@ def main():
   parser.add_argument('path', nargs='*', help='.ipynb paths to convert')
 
   extra_args, _ = parser.parse_known_args()
+  print(f'extra_args: {extra_args}')
   extra_args = extra_args.args
   if extra_args:
     extra_args = shlex.split(extra_args)
