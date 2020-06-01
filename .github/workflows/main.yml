@@ -18,3 +18,5 @@ jobs:
 
     - name: nbconvert README
       uses: runsascoded/nbconvert@latest
+      with:
+        args: -x -f
