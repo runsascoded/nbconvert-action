@@ -17,6 +17,6 @@ jobs:
         git fetch --depth=1 origin +refs/heads/${{github.base_ref}}:refs/remotes/origin/${{github.base_ref}}
 
     - name: nbconvert README
-      uses: runsascoded/nbconvert@latest
+      uses: ./
       with:
-        args: -f
+        args: -f -x
