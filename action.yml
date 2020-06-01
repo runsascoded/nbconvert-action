@@ -11,6 +11,6 @@ runs:
   image: docker://runsascoded/nbconvert-action
   args:
     - -t
-    - ${{github.token}}
+    - ${{inputs.token}}
     - --args
     - ${{ inputs.args }}
