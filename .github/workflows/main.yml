@@ -1,7 +1,5 @@
-name: CI
+name: Refresh .md's
 on:
-  push:
-    branches: [ master ]
   pull_request:
     branches: [ master ]
 
@@ -19,4 +17,4 @@ jobs:
         git fetch --depth=1 origin +refs/heads/${{github.base_ref}}:refs/remotes/origin/${{github.base_ref}}
 
     - name: nbconvert README
-      uses: runsascoded/nbconvert@v1.1
+      uses: runsascoded/nbconvert@latest
