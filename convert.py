@@ -113,7 +113,7 @@ def main():
     else:
       exec_args = []
 
-    run('jupyter', 'nbconvert', exec_args, path, '--to', to )
+    run([ 'jupyter', 'nbconvert' ] + exec_args + [ path, '--to', to ])
 
   updates = lines('git','diff','--name-only')
   if updates:
