@@ -35,6 +35,8 @@ def main():
     print(f'post-shlex --args: {extra_args}')
     idx = sys.argv.index('--args')
     args = sys.argv[:idx] + extra_args + sys.argv[(idx+2):]
+    print(f'Sliced sys.argv at idx {idx}: {sys.argv}')
+    print(f'Result: {args}')
     args = parser.parse_args(args)
   else:
     args = parser.parse_args()
