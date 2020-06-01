@@ -20,5 +20,5 @@ jobs:
       uses: runsascoded/nbconvert@latest
       with:
         args:
-        - -x
-        - -f
+        - '-x'
+        - '-f'

@@ -15,4 +15,3 @@ runs:
   args:
     - -t
     - ${{inputs.token}}
-    - ${{inputs.args}}
