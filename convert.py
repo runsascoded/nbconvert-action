@@ -3,6 +3,8 @@
 from argparse import ArgumentParser
 from os import environ as env
 from pathlib import Path
+import shlex
+import sys
 from sys import stderr
 
 from run import *
@@ -20,9 +22,20 @@ def main():
   parser.add_argument('-r', '--revision', help='Git revision (or range) to compute diffs against (default: <remote>/$GITHUB_BASE_REF, where <remote> is the --remote flag value or its fallback Git remote')
   parser.add_argument('-t', '--token', help='Git access token for pushing changes')
   parser.add_argument('-u', '--user', required=False, help='user.name for Git commit')
+  parser.add_argument('--args', help='Additional arguments, passed as one string; helps with accumulating all desired arguments in various YAMLs that lack the ability to concatenate lists')
+  parser.add_argument('--test', help='Test of shell lexing "--args"')
   parser.add_argument('path', nargs='*', help='.ipynb paths to convert')
 
-  args = parser.parse_args()
+  extra_args = parser.parse_known_args().args
+  if extra_args:
+    extra_args = shlex.split(extra_args)
+    print(f'post-shlex --args: {extra_args}')
+    idx = sys.argv.index('--args')
+    args = sys.argv[:idx] + extra_args + sys.argv[(idx+2):]
+    args = parser.parse_args(args)
+  else:
+    args = parser.parse_args()
+
   print(f'args: {args.__dict__}')
 
   remote = args.remote

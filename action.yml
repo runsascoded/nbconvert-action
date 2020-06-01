@@ -10,4 +10,7 @@ runs:
   using: docker
   image: docker://runsascoded/nbconvert-action
   args:
+    - -t
+    - ${{github.token}}
+    - --args
     - ${{ inputs.args }}
