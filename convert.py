@@ -22,6 +22,7 @@ def main():
   parser.add_argument('-r', '--revision', help='Git revision (or range) to compute diffs against (default: <remote>/$GITHUB_BASE_REF, where <remote> is the --remote flag value or its fallback Git remote')
   parser.add_argument('-t', '--token', help='Git access token for pushing changes')
   parser.add_argument('-u', '--user', required=False, help='user.name for Git commit')
+  parser.add_argument('-x', '--execute', action='store_true', help='When set, execute notebooks while converting them (by passing --execute to nbconvert)')
   parser.add_argument('--args', help='Additional arguments, passed as one string; helps with accumulating all desired arguments in various YAMLs that lack the ability to concatenate lists')
   parser.add_argument('--test', help='Test of shell lexing "--args"')
   parser.add_argument('path', nargs='*', help='.ipynb paths to convert')
