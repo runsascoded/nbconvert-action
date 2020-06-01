@@ -107,7 +107,13 @@ def main():
   for path in nbs:
     name = path.rsplit('.', 1)[0]
     to = 'markdown' if fmt == 'md' else fmt
-    run('jupyter', 'nbconvert', path, '--to', to )
+
+    if args.execute:
+      exec_args = ['--execute']
+    else:
+      exec_args = []
+
+    run('jupyter', 'nbconvert', exec_args, path, '--to', to )
 
   updates = lines('git','diff','--name-only')
   if updates:
