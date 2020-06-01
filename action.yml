@@ -9,7 +9,3 @@ inputs:
 runs:
   using: docker
   image: docker://runsascoded/nbconvert-action
-  args:
-    - -t
-    - ${{inputs.token}}
-    - ${{inputs.args}}

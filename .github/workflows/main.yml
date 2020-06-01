@@ -19,4 +19,4 @@ jobs:
     - name: nbconvert README
       uses: ./
       with:
-        args: -f -x
+        args: -f -x -t ${{github.token}}
