@@ -19,4 +19,4 @@ jobs:
     - name: nbconvert README
       uses: ./
       with:
-        args: --test "a b c" -f -x
+        args: -f -x
