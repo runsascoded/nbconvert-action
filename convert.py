@@ -37,9 +37,7 @@ def main():
     args = sys.argv[:idx] + extra_args + sys.argv[(idx+2):]
     if args[0] == __file__:
       args = args[1:]
-    print(f'file: {__file__}')
-    print(f'Sliced sys.argv at idx {idx}: {sys.argv}')
-    print(f'Result: {args}')
+
     args = parser.parse_args(args)
   else:
     args = parser.parse_args()
