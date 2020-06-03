@@ -14,6 +14,7 @@ def main():
   parser.add_argument('-b', '--branch', default=env.get('GITHUB_HEAD_REF'), help='Current Git branch (and push target for any changes; default: $GITHUB_HEAD_REF)')
   parser.add_argument('-e', '--email', required=False, help='user.email for Git commit')
   parser.add_argument('-f', '--force', action='store_true', help='Run nbconvert on .ipynb files even if they don\'t seem changed since the base revision')
+  parser.add_argument('-G', '--no_git', action='store_true', help='When set, skip attempting to Git commit+push any changes')
   parser.add_argument('-m', '--remote', required=False, help='Git remote to push changes to; defaults to the only git remote, where applicable')
   parser.add_argument('-o', '--fmt', default='md', help='Format to convert files to (passed to nbconvert; default: markdown)')
   parser.add_argument('-p', '--repository', default=env.get('GITHUB_REPOSITORY'), help='Git repository (org/repo) to push to (default: $GITHUB_REPOSITORY)')
@@ -95,36 +96,37 @@ def main():
 
     run([ 'jupyter', 'nbconvert' ] + exec_args + [ path, '--to', to ])
 
-  updates = lines('git','diff','--name-only')
-  if updates:
-    print(f'Found {fmt} files that need updating: {updates}')
+  if not args.no_git:
+    updates = lines('git','diff','--name-only')
+    if updates:
+      print(f'Found {fmt} files that need updating: {updates}')
 
-    branch = args.branch
-    repository = args.repository
+      branch = args.branch
+      repository = args.repository
 
-    user = args.user
-    if not user:
-      user = line('git','log','-n','1','--format=%an')
-      print(f'Got user name from last PR commit: {user}')
+      user = args.user
+      if not user:
+        user = line('git','log','-n','1','--format=%an')
+        print(f'Got user name from last PR commit: {user}')
 
-    email = args.email
-    if not email:
-      email = line('git','log','-n','1','--format=%ae')
-      print(f'Got user email from last PR commit: {email}')
+      email = args.email
+      if not email:
+        email = line('git','log','-n','1','--format=%ae')
+        print(f'Got user email from last PR commit: {email}')
 
-    token = args.token
-    #if not token: token = env['ACTIONS_RUNTIME_TOKEN']
+      token = args.token
+      #if not token: token = env['ACTIONS_RUNTIME_TOKEN']
 
-    msg = f'CI: update .{fmt} files via nbconvert'
+      msg = f'CI: update .{fmt} files via nbconvert'
 
-    run('git','config','user.name',user)
-    run('git','config','user.email',email)
-    run('git','commit','-a','-m',msg)
-    run('git', 'remote', 'set-url', remote, f'https://x-access-token:{token}@github.com/{repository}')
-    run('git','log','--oneline','--graph')
-    run('git','push',remote,f'HEAD:{branch}')
-  else:
-    print(f'{len(nbs)} notebooks already up-to-date')
+      run('git','config','user.name',user)
+      run('git','config','user.email',email)
+      run('git','commit','-a','-m',msg)
+      run('git', 'remote', 'set-url', remote, f'https://x-access-token:{token}@github.com/{repository}')
+      run('git','log','--oneline','--graph')
+      run('git','push',remote,f'HEAD:{branch}')
+    else:
+      print(f'{len(nbs)} notebooks already up-to-date')
 
 
 if __name__ == '__main__':

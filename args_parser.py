@@ -61,7 +61,9 @@ class ArgsParser(ArgumentParser):
       if match('python3?', args[0]):
         args = args[1:]
 
-      # Strip called python file from sys.argv
+      # Strip called python file from sys.argv; ArgumentParser.parse_args() does this on its own
+      # when called with no arguments, but we are passing explicit arguments here, so need to
+      # mimic it.
       args = args[1:]
 
       # Strip "--args=<value>" or ["--args","<value>"] args:
