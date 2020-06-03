@@ -7,6 +7,7 @@ from run import *
 def main():
   parser = ArgumentParser()
   parser.add_argument('-f', '--force', action='store_true', help='When set, pass "-f" to `git tag` and `git push` (overwrite/accept any existing Git tag)')
+  parser.add_argument('-G', '--no_git', action='store_true', help='When set, don\'t attempt to create+push a Git tag')
   parser.add_argument('-m', '--message', help='Commit message to use, if unstaged changes are to be committed as part of the push')
   parser.add_argument('-n', '--dry_run', action='store_true', help='When set, skip pushing to Docker Hub (and Git tag to GitHub, if present)')
   parser.add_argument('-r', '--repository', default='runsascoded/nbconvert-action', help='Docker Hub repository to push to')
@@ -45,14 +46,15 @@ def main():
         else:
           run('git','commit','-a')
 
-      if args.force:
-        print('Force-{tagging,pushing}…')
-        force_args = ['-f']
-      else:
-        force_args = []
+      if not args.no_git:
+        if args.force:
+          print('Force-{tagging,pushing}…')
+          force_args = ['-f']
+        else:
+          force_args = []
 
-      run(['git','tag'] + force_args + [tag])
-      run(['git','push'] + force_args + ['--tags'])
+        run(['git','tag'] + force_args + [tag])
+        run(['git','push'] + force_args + ['--tags'])
 
 
 if __name__ == '__main__':
