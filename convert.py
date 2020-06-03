@@ -115,7 +115,6 @@ def main():
         print(f'Got user email from last PR commit: {email}')
 
       token = args.token
-      #if not token: token = env['ACTIONS_RUNTIME_TOKEN']
 
       msg = f'CI: update .{fmt} files via nbconvert'
 
@@ -123,7 +122,7 @@ def main():
       run('git','config','user.email',email)
       run('git','commit','-a','-m',msg)
       run('git', 'remote', 'set-url', remote, f'https://x-access-token:{token}@github.com/{repository}')
-      run('git','log','--oneline','--graph')
+      run('git','log','--oneline','--graph',f'{revision}..HEAD')
       run('git','push',remote,f'HEAD:{branch}')
     else:
       print(f'{len(nbs)} notebooks already up-to-date')
