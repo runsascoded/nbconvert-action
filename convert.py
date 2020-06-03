@@ -1,25 +1,27 @@
 #!/usr/bin/env python
 
-from argparse import ArgumentParser
 from os import environ as env
 from pathlib import Path
 from sys import stderr
 
+from args_parser import ArgsParser
 from run import *
 
 
 def main():
-  parser = ArgumentParser()
+  parser = ArgsParser(log=print)
   parser.add_argument('-a', '--all', action='store_true', help='Inspect all .ipynb files (by default, notebooks are only checked if they already have a counterpart in the target format checked in to the repo')
   parser.add_argument('-b', '--branch', default=env.get('GITHUB_HEAD_REF'), help='Current Git branch (and push target for any changes; default: $GITHUB_HEAD_REF)')
   parser.add_argument('-e', '--email', required=False, help='user.email for Git commit')
   parser.add_argument('-f', '--force', action='store_true', help='Run nbconvert on .ipynb files even if they don\'t seem changed since the base revision')
-  parser.add_argument('-m', '--remote', required=False, help='Git remote to push changes to; defaults to the only git remote, where applicable')
+  parser.add_argument('-G', '--no_git', action='store_true', help='When set, skip attempting to Git commit+push any changes')
+  parser.add_argument('-n', '--name', required=False, help='user.name for Git commit')
   parser.add_argument('-o', '--fmt', default='md', help='Format to convert files to (passed to nbconvert; default: markdown)')
   parser.add_argument('-p', '--repository', default=env.get('GITHUB_REPOSITORY'), help='Git repository (org/repo) to push to (default: $GITHUB_REPOSITORY)')
-  parser.add_argument('-r', '--revision', help='Git revision (or range) to compute diffs against (default: <remote>/$GITHUB_BASE_REF, where <remote> is the --remote flag value or its fallback Git remote')
+  parser.add_argument('-r', '--remote', required=False, help='Git remote to push changes to; defaults to the only git remote, where applicable')
+  parser.add_argument('-u', '--upstream', help='Git revision (or range) to compute diffs against (default: <remote>/$GITHUB_BASE_REF, where <remote> is the --remote flag value or its fallback Git remote')
   parser.add_argument('-t', '--token', help='Git access token for pushing changes')
-  parser.add_argument('-u', '--user', required=False, help='user.name for Git commit')
+  parser.add_argument('-x', '--execute', action='store_true', help='When set, execute notebooks while converting them (by passing --execute to nbconvert)')
   parser.add_argument('path', nargs='*', help='.ipynb paths to convert')
 
   args = parser.parse_args()
@@ -30,7 +32,21 @@ def main():
     remote = line('git','remote')
     print(f'Using sole remote: {remote}')
 
-  revision = args.revision or '%s/%s' % (remote, env['GITHUB_BASE_REF'])
+  branch = args.branch or line('git','branch')
+
+  upstream = args.upstream
+  if upstream:
+    if '/' in upstream:
+      [_remote, remote_branch] = upstream.split('/')
+      if _remote != remote:
+        raise ValueError(f'Conflicting remotes: {remote} vs. {_remote}')
+    else:
+      remote_branch = upstream
+      upstream = f'{remote}/{remote_branch}'
+  else:
+    remote_branch = env.get('GITHUB_BASE_REF') or branch
+    upstream = f'{remote}/{remote_branch}'
+
   fmt = args.fmt
 
   paths = args.path
@@ -67,14 +83,18 @@ def main():
         for path in filter_nb(nb)
       ]
 
+  if not check('git','show',upstream):
+    refspec = f'+refs/heads/{remote_branch}:refs/remotes/{remote}/{remote_branch}'
+    run('git','fetch','--depth=1',remote,refspec)
+
   if not paths:
     print(f'No notebooks found to check')
   elif len(paths) == 1:
-    print(f'Checking {paths[0]} for diffs since {revision}')
+    print(f'Checking {paths[0]} for diffs since {upstream}')
   else:
-    print(f'Checking {len(paths)} notebook paths for diffs since {revision}:\n\t%s' % '\n\t'.join(paths))
+    print(f'Checking {len(paths)} notebook paths for diffs since {upstream}:\n\t%s' % '\n\t'.join(paths))
 
-  changed_nbs = lines(['git','diff','--name-only',revision,'--'] + paths)
+  changed_nbs = lines(['git','diff','--name-only',upstream,'--'] + paths)
   if changed_nbs:
     print(f'Found notebook diffs: {changed_nbs}')
 
@@ -86,38 +106,43 @@ def main():
   for path in nbs:
     name = path.rsplit('.', 1)[0]
     to = 'markdown' if fmt == 'md' else fmt
-    run('jupyter', 'nbconvert', path, '--to', to )
 
-  updates = lines('git','diff','--name-only')
-  if updates:
-    print(f'Found {fmt} files that need updating: {updates}')
+    if args.execute:
+      exec_args = ['--execute']
+    else:
+      exec_args = []
 
-    branch = args.branch
-    repository = args.repository
+    run([ 'jupyter', 'nbconvert' ] + exec_args + [ path, '--to', to ])
 
-    user = args.user
-    if not user:
-      user = line('git','log','-n','1','--format=%an')
-      print(f'Got user name from last PR commit: {user}')
+  if not args.no_git:
+    updates = lines('git','diff','--name-only')
+    if updates:
+      print(f'Found {fmt} files that need updating: {updates}')
 
-    email = args.email
-    if not email:
-      email = line('git','log','-n','1','--format=%ae')
-      print(f'Got user email from last PR commit: {email}')
+      repository = args.repository
 
-    token = args.token
-    #if not token: token = env['ACTIONS_RUNTIME_TOKEN']
+      name = args.name
+      if not name:
+        name = line('git','log','-n','1','--format=%an')
+        print(f'Got user name from last PR commit: {name}')
 
-    msg = f'CI: update .{fmt} files via nbconvert'
+      email = args.email
+      if not email:
+        email = line('git','log','-n','1','--format=%ae')
+        print(f'Got user email from last PR commit: {email}')
 
-    run('git','config','user.name',user)
-    run('git','config','user.email',email)
-    run('git','commit','-a','-m',msg)
-    run('git', 'remote', 'set-url', remote, f'https://x-access-token:{token}@github.com/{repository}')
-    run('git','log','--oneline','--graph')
-    run('git','push',remote,f'HEAD:{branch}')
-  else:
-    print(f'{len(nbs)} notebooks already up-to-date')
+      token = args.token
+
+      msg = f'CI: update .{fmt} files via nbconvert'
+
+      run('git','config','user.name',name)
+      run('git','config','user.email',email)
+      run('git','commit','-a','-m',msg)
+      run('git', 'remote', 'set-url', remote, f'https://x-access-token:{token}@github.com/{repository}')
+      run('git','push',remote,f'HEAD:{branch}')
+    else:
+      print(f'{len(nbs)} notebooks already up-to-date')
+
 
 if __name__ == '__main__':
   main()
