@@ -1,7 +1,7 @@
 # `nbconvert` GitHub Action
 Automatically convert `.ipynb` files in pull requests to Markdown (or other formats supported by [`nbconvert`])
 
-This repo uses itself to convert its README from an `.ipynb` to an `.md`; see [`.github/workflows/main.yml`](.github/workflows/main.yml):
+This repo [uses itself](.github/workflows/main.yml) to convert its README from an `.ipynb` to an `.md`::
 ```yaml
 steps:
 - name: Check out repository
@@ -9,22 +9,18 @@ steps:
   with:
     ref: ${{ github.head_ref }}
 
-- name: Add PR base ref
-  run: |
-    git fetch --depth=1 origin +refs/heads/${{github.base_ref}}:refs/remotes/origin/${{github.base_ref}}
-
 - name: nbconvert README
-  uses: runsascoded/nbconvert@v1.1
+  uses: ./
+  with:
+    args: -f -x
 ```
 
-By default:
-- it converts `.ipynb` files to Markdown (`.md`)
-- it operates on any existing pairs of files with those extensions in the repo
-- if the `.ipynb` has changed during the pull request, the corresponding `.md` is regenerated (using [`nbconvert`])
-- if any `.md` files are changed, a commit is created, and pushed to the PR's branch
+By default, it converts `.ipynb` files to Markdown (`.md`):
+- check any existing `.ipynb`/`.md` pairs in the repo (or all `.ipynb`s, if `-a`/`--all` is set)
+- if the `.ipynb` has changed during the pull request (or `-f`/`--force` is set), the corresponding `.md` is (re)generated (using [`nbconvert`]; `-x`/`--execute` will cause the notebook to be executed as part of the conversion)
+- if any `.md` files are changed, a commit is created and pushed to the PR's branch
 
-Many of these behaviors are configurable; see [`convert.py`](convert.py) or run `convert.py -h` to view available options.
-
+Many of these behaviors are configurable; see [`convert.py`](convert.py) or `convert.py -h` below to view available options.
 
 [`nbconvert`]: https://nbconvert.readthedocs.io/en/latest/
 
