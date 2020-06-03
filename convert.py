@@ -35,7 +35,15 @@ def main():
   branch = args.branch or line('git','branch')
 
   upstream = args.upstream
-  if not upstream:
+  if upstream:
+    if '/' in upstream:
+      [_remote, remote_branch] = upstream.split('/')
+      if _remote != remote:
+        raise ValueError(f'Conflicting remotes: {remote} vs. {_remote}')
+    else:
+      remote_branch = upstream
+      upstream = f'{remote}/{remote_branch}'
+  else:
     remote_branch = env.get('GITHUB_BASE_REF') or branch
     upstream = f'{remote}/{remote_branch}'
 
@@ -76,7 +84,7 @@ def main():
       ]
 
   if not check('git','show',upstream):
-    refspec = f'+refs/heads/{upstream}:refs/remotes/{remote}/{upstream}'
+    refspec = f'+refs/heads/{remote_branch}:refs/remotes/{remote}/{remote_branch}'
     run('git','fetch','--depth=1',remote,refspec)
 
   if not paths:
