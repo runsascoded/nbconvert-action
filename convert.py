@@ -126,6 +126,7 @@ def main():
     else:
       print(f'{len(nbs)} notebooks already up-to-date')
 
+    run('git','diff','--stat',f'{revision}..HEAD')
     run('git','log','--oneline','--graph','--decorate',f'{revision}..HEAD')
 
 
