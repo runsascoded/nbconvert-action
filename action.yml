@@ -2,14 +2,14 @@ name: nbconvert
 description: Convert Jupyter notebooks to Markdown (or other formats supported by nbconvert)
 inputs:
   args:
-    description: "Arguments to pass to convert.py"
+    description: Arguments to pass to convert.py
   token:
-    description: "GitHub Personal Access Token with 'repo' permissions (for pushing updated .md files back onto PR branch)"
+    description: GitHub API Token (for pushing updated files onto PR branch)
     default: ${{github.token}}
 runs:
   using: docker
   image: docker://runsascoded/nbconvert-action
   args:
-    - -t
-    - ${{inputs.token}}
-    - --args=${{inputs.args}}
+  - -t
+  - ${{inputs.token}}
+  - --args=${{inputs.args}}
