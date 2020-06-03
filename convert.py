@@ -138,8 +138,11 @@ def main():
       run('git','config','user.name',name)
       run('git','config','user.email',email)
       run('git','commit','-a','-m',msg)
-      run('git', 'remote', 'set-url', remote, f'https://x-access-token:{token}@github.com/{repository}')
-      run('git','push',remote,f'HEAD:{branch}')
+      if repository and token:
+        run('git', 'remote', 'set-url', remote, f'https://x-access-token:{token}@github.com/{repository}')
+        run('git','push',remote,f'HEAD:{branch}')
+      else:
+        print(f"Skipping push for lack of repository ({repository}) or token ({token})")
     else:
       print(f'{len(nbs)} notebooks already up-to-date')
 
