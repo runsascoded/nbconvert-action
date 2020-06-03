@@ -4,11 +4,11 @@ inputs:
   args:
     description: Arguments to pass to convert.py
   token:
-    description: GitHub Personal Access Token with 'repo' permissions (for pushing updated .md files back onto PR branch)
+    description: GitHub API Token (for pushing updated files onto PR branch)
     default: ${{github.token}}
 runs:
   using: docker
-  image: docker://runsascoded/nbconvert-action:v1.2
+  image: docker://runsascoded/nbconvert-action
   args:
   - -t
   - ${{inputs.token}}
