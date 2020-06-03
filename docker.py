@@ -34,7 +34,7 @@ def main():
         print(f'Updating action.yml docker image: {image} → {dst_uri}')
         action['runs']['image'] = dst_uri
         with open('action.yml','w') as f:
-          yaml.safe_dump(action, f, sort_keys=False)
+          yaml.safe_dump(action, f, sort_keys=False, width=float("inf"))
         print(f'Updated action.yml:')
         run('git','diff','--','action.yml')
 
