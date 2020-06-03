@@ -12,10 +12,6 @@ jobs:
       with:
         ref: ${{ github.head_ref }}
 
-    - name: Add PR base ref
-      run: |
-        git fetch --depth=1 origin +refs/heads/${{github.base_ref}}:refs/remotes/origin/${{github.base_ref}}
-
     - name: nbconvert README
       uses: ./
       with:
