@@ -35,8 +35,8 @@ convert.py -h
 ```
 
     usage: convert.py [-h] [--args ARGS] [-a] [-b BRANCH] [-e EMAIL] [-f] [-G]
-                      [-m REMOTE] [-o FMT] [-p REPOSITORY] [-r REVISION]
-                      [-t TOKEN] [-u USER] [-x]
+                      [-n NAME] [-o FMT] [-p REPOSITORY] [-r REMOTE] [-u UPSTREAM]
+                      [-t TOKEN] [-x]
                       [path [path ...]]
     
     positional arguments:
@@ -64,21 +64,21 @@ convert.py -h
                             changed since the base revision
       -G, --no_git          When set, skip attempting to Git commit+push any
                             changes
-      -m REMOTE, --remote REMOTE
-                            Git remote to push changes to; defaults to the only
-                            git remote, where applicable
+      -n NAME, --name NAME  user.name for Git commit
       -o FMT, --fmt FMT     Format to convert files to (passed to nbconvert;
                             default: markdown)
       -p REPOSITORY, --repository REPOSITORY
                             Git repository (org/repo) to push to (default:
                             $GITHUB_REPOSITORY)
-      -r REVISION, --revision REVISION
+      -r REMOTE, --remote REMOTE
+                            Git remote to push changes to; defaults to the only
+                            git remote, where applicable
+      -u UPSTREAM, --upstream UPSTREAM
                             Git revision (or range) to compute diffs against
                             (default: <remote>/$GITHUB_BASE_REF, where <remote> is
                             the --remote flag value or its fallback Git remote
       -t TOKEN, --token TOKEN
                             Git access token for pushing changes
-      -u USER, --user USER  user.name for Git commit
       -x, --execute         When set, execute notebooks while converting them (by
                             passing --execute to nbconvert)
 
