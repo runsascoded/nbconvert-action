@@ -122,10 +122,11 @@ def main():
       run('git','config','user.email',email)
       run('git','commit','-a','-m',msg)
       run('git', 'remote', 'set-url', remote, f'https://x-access-token:{token}@github.com/{repository}')
-      run('git','log','--oneline','--graph',f'{revision}..HEAD')
       run('git','push',remote,f'HEAD:{branch}')
     else:
       print(f'{len(nbs)} notebooks already up-to-date')
+
+    run('git','log','--oneline','--graph','--decorate',f'{revision}..HEAD')
 
 
 if __name__ == '__main__':
