@@ -1,17 +1,15 @@
 #!/usr/bin/env python
 
-from argparse import ArgumentParser
 from os import environ as env
 from pathlib import Path
-import shlex
-import sys
 from sys import stderr
 
+from args_parser import ArgsParser
 from run import *
 
 
 def main():
-  parser = ArgumentParser()
+  parser = ArgsParser()
   parser.add_argument('-a', '--all', action='store_true', help='Inspect all .ipynb files (by default, notebooks are only checked if they already have a counterpart in the target format checked in to the repo')
   parser.add_argument('-b', '--branch', default=env.get('GITHUB_HEAD_REF'), help='Current Git branch (and push target for any changes; default: $GITHUB_HEAD_REF)')
   parser.add_argument('-e', '--email', required=False, help='user.email for Git commit')
@@ -23,24 +21,9 @@ def main():
   parser.add_argument('-t', '--token', help='Git access token for pushing changes')
   parser.add_argument('-u', '--user', required=False, help='user.name for Git commit')
   parser.add_argument('-x', '--execute', action='store_true', help='When set, execute notebooks while converting them (by passing --execute to nbconvert)')
-  parser.add_argument('--args', help='Additional arguments, passed as one string; helps with accumulating all desired arguments in various YAMLs that lack the ability to concatenate lists')
   parser.add_argument('path', nargs='*', help='.ipynb paths to convert')
 
-  extra_args, _ = parser.parse_known_args()
-  print(f'extra_args: {extra_args}')
-  extra_args = extra_args.args
-  if extra_args:
-    extra_args = shlex.split(extra_args)
-    print(f'post-shlex --args: {extra_args}')
-    idx = sys.argv.index('--args')
-    args = sys.argv[:idx] + extra_args + sys.argv[(idx+2):]
-    if args[0] == __file__:
-      args = args[1:]
-
-    args = parser.parse_args(args)
-  else:
-    args = parser.parse_args()
-
+  args = parser.parse_args()
   print(f'args: {args.__dict__}')
 
   remote = args.remote
@@ -142,6 +125,7 @@ def main():
     run('git','push',remote,f'HEAD:{branch}')
   else:
     print(f'{len(nbs)} notebooks already up-to-date')
+
 
 if __name__ == '__main__':
   main()
