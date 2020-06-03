@@ -34,8 +34,9 @@ Many of these behaviors are configurable; see [`convert.py`](convert.py) or run 
 convert.py -h
 ```
 
-    usage: convert.py [-h] [-a] [-b BRANCH] [-e EMAIL] [-f] [-m REMOTE] [-o FMT]
-                      [-p REPOSITORY] [-r REVISION] [-t TOKEN] [-u USER]
+    usage: convert.py [-h] [--args ARGS] [-a] [-b BRANCH] [-e EMAIL] [-f] [-G]
+                      [-m REMOTE] [-o FMT] [-p REPOSITORY] [-r REVISION]
+                      [-t TOKEN] [-u USER] [-x]
                       [path [path ...]]
     
     positional arguments:
@@ -43,6 +44,14 @@ convert.py -h
     
     optional arguments:
       -h, --help            show this help message and exit
+      --args ARGS           Additional arguments, passed as one bash-token string
+                            (e.g. "-f -x"). If the string being passed begins with
+                            a "-" character (as it typically will), then this
+                            argument should be expressed as one bash token like "
+                            --args=-f -x" (as opposed to two tokens: "--args", "-f
+                            -x"), so that argparse doesn't get confused. Useful
+                            for e.g. specifying arguments across multiple YAML
+                            files that lack the ability to concatenate lists.
       -a, --all             Inspect all .ipynb files (by default, notebooks are
                             only checked if they already have a counterpart in the
                             target format checked in to the repo
@@ -53,6 +62,8 @@ convert.py -h
                             user.email for Git commit
       -f, --force           Run nbconvert on .ipynb files even if they don't seem
                             changed since the base revision
+      -G, --no_git          When set, skip attempting to Git commit+push any
+                            changes
       -m REMOTE, --remote REMOTE
                             Git remote to push changes to; defaults to the only
                             git remote, where applicable
@@ -68,4 +79,6 @@ convert.py -h
       -t TOKEN, --token TOKEN
                             Git access token for pushing changes
       -u USER, --user USER  user.name for Git commit
+      -x, --execute         When set, execute notebooks while converting them (by
+                            passing --execute to nbconvert)
 
