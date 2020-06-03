@@ -121,10 +121,10 @@ def main():
 
       repository = args.repository
 
-      user = args.user
-      if not user:
-        user = line('git','log','-n','1','--format=%an')
-        print(f'Got user name from last PR commit: {user}')
+      name = args.name
+      if not name:
+        name = line('git','log','-n','1','--format=%an')
+        print(f'Got user name from last PR commit: {name}')
 
       email = args.email
       if not email:
@@ -135,7 +135,7 @@ def main():
 
       msg = f'CI: update .{fmt} files via nbconvert'
 
-      run('git','config','user.name',user)
+      run('git','config','user.name',name)
       run('git','config','user.email',email)
       run('git','commit','-a','-m',msg)
       run('git', 'remote', 'set-url', remote, f'https://x-access-token:{token}@github.com/{repository}')
