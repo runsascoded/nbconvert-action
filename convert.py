@@ -9,7 +9,7 @@ from run import *
 
 
 def main():
-  parser = ArgsParser()
+  parser = ArgsParser(log=print)
   parser.add_argument('-a', '--all', action='store_true', help='Inspect all .ipynb files (by default, notebooks are only checked if they already have a counterpart in the target format checked in to the repo')
   parser.add_argument('-b', '--branch', default=env.get('GITHUB_HEAD_REF'), help='Current Git branch (and push target for any changes; default: $GITHUB_HEAD_REF)')
   parser.add_argument('-e', '--email', required=False, help='user.email for Git commit')

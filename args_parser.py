@@ -54,9 +54,6 @@ class ArgsParser(ArgumentParser):
       ]
       args_arg_span_size = 1 if args_arg.startswith('--args=') else 2
       args = sys.argv[:idx] + extra_args + sys.argv[(idx+args_arg_span_size):]
-      if args[0] == __file__:
-        args = args[1:]
-
       args = super(ArgsParser, self).parse_args(args)
     else:
       args = super(ArgsParser, self).parse_args()
