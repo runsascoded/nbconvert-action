@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+from re import match
 import shlex
 import sys
 
@@ -41,7 +42,7 @@ class ArgsParser(ArgumentParser):
 
   def parse_args(self, *args, **kwargs):
     extra_args, _ = self.parse_known_args()
-    self.log('extra_args: {extra_args}')
+    self.log(f'extra_args: {extra_args}')
 
     extra_args = extra_args.args
     if extra_args:
@@ -53,7 +54,19 @@ class ArgsParser(ArgumentParser):
         if arg.startswith('--args')
       ]
       args_arg_span_size = 1 if args_arg.startswith('--args=') else 2
-      args = sys.argv[:idx] + extra_args + sys.argv[(idx+args_arg_span_size):]
+
+      args = sys.argv
+
+      # Strip 'python' executable from front of sys.argv, if present:
+      if match('python3?', args[0]):
+        args = args[1:]
+
+      # Strip called python file from sys.argv
+      args = args[1:]
+
+      # Strip "--args=<value>" or ["--args","<value>"] args:
+      args = sys.argv[1:idx] + extra_args + sys.argv[(idx+args_arg_span_size):]
+
       args = super(ArgsParser, self).parse_args(args)
     else:
       args = super(ArgsParser, self).parse_args()
