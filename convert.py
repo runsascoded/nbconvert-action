@@ -110,7 +110,7 @@ def main():
 
     from contextlib import nullcontext
     ctx = nullcontext()
-    nb = Path(path)
+    nb = Path(path).absolute().resolve()
     out_path = nb.parent / f'{name}.{fmt}'
     if args.execute and not args.in_place:
       from tempfile import NamedTemporaryFile
