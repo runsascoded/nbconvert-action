@@ -15,6 +15,7 @@ def main():
   parser.add_argument('-e', '--email', required=False, help='user.email for Git commit')
   parser.add_argument('-f', '--force', action='store_true', help='Run nbconvert on .ipynb files even if they don\'t seem changed since the base revision')
   parser.add_argument('-G', '--no_git', action='store_true', help='When set, skip attempting to Git commit+push any changes')
+  parser.add_argument('-i', '--in_place', action='store_true', help='When set along with -x/--execute, overwrite notebooks in-place with their executed versions')
   parser.add_argument('-n', '--name', required=False, help='user.name for Git commit')
   parser.add_argument('-o', '--fmt', default='md', help='Format to convert files to (passed to nbconvert; default: markdown)')
   parser.add_argument('-p', '--repository', default=env.get('GITHUB_REPOSITORY'), help='Git repository (org/repo) to push to (default: $GITHUB_REPOSITORY)')
@@ -107,12 +108,18 @@ def main():
     name = path.rsplit('.', 1)[0]
     to = 'markdown' if fmt == 'md' else fmt
 
-    if args.execute:
-      exec_args = ['--execute']
-    else:
-      exec_args = []
+    from contextlib import nullcontext
+    ctx = nullcontext()
+    nb = Path(path)
+    out_path = f'{name}.{fmt}'
+    if args.execute and not args.in_place:
+      from tempfile import NamedTemporaryFile
+      ctx = NamedTemporaryFile(suffix=path)
+      nb = Path(ctx.name)
 
-    run([ 'jupyter', 'nbconvert' ] + exec_args + [ path, '--to', to ])
+    with ctx:
+      run('papermill', path, nb)
+      run('jupyter', 'nbconvert', nb, '--to', to, '--output', out_path)
 
   if not args.no_git:
     updates = lines('git','diff','--name-only')
