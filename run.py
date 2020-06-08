@@ -38,7 +38,7 @@ def run(*cmd, **kwargs):
 
 def check(*cmd):
   try:
-    run(*cmd, stderr=DEVNULL)
+    run(*cmd, stdout=DEVNULL, stderr=DEVNULL)
     return True
   except CalledProcessError:
     return False
