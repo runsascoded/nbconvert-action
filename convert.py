@@ -126,7 +126,8 @@ def main():
       nb = Path(ctx.name)
 
     with ctx:
-      run('papermill', path, nb)
+      if args.execute:
+        run('papermill', path, nb)
       run('jupyter', 'nbconvert', nb, '--to', to, '--output', out_path)
 
   if not args.no_git:
