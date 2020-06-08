@@ -12,6 +12,7 @@ def main():
   parser = ArgsParser(log=print)
   parser.add_argument('-a', '--all', action='store_true', help='Inspect all .ipynb files (by default, notebooks are only checked if they already have a counterpart in the target format checked in to the repo')
   parser.add_argument('-b', '--branch', default=env.get('GITHUB_HEAD_REF'), help='Current Git branch (and push target for any changes; default: $GITHUB_HEAD_REF)')
+  parser.add_argument('-d', '--pip_deps', required=False, help='Comma-separated list of pip dependencies to install')
   parser.add_argument('-e', '--email', required=False, help='user.email for Git commit')
   parser.add_argument('-f', '--force', action='store_true', help='Run nbconvert on .ipynb files even if they don\'t seem changed since the base revision')
   parser.add_argument('-G', '--no_git', action='store_true', help='When set, skip attempting to Git commit+push any changes')
@@ -27,6 +28,13 @@ def main():
 
   args = parser.parse_args()
   print(f'args: {args.__dict__}')
+
+  pip_deps = args.pip_deps
+  if pip_deps:
+    print(f'Installing pip deps: {pip_deps}')
+    pip_deps = pip_deps.split(',')
+    from sys import executable as python
+    run(*([python, '-m', 'pip', 'install'] + pip_deps))
 
   remote = args.remote
   if not args.remote:
