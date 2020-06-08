@@ -33,8 +33,15 @@ def main():
   if pip_deps:
     print(f'Installing pip deps: {pip_deps}')
     pip_deps = pip_deps.split(',')
+    install_self = False
+    if '.' in pip_deps:
+      install_self = True
+      pip_deps = [ d for d in pip_deps if d != '.' ]
     from sys import executable as python
-    run(*([python, '-m', 'pip', 'install'] + pip_deps))
+    if pip_deps:
+      run([python, '-m', 'pip', 'install'] + pip_deps)
+    if install_self:
+      run(python, '-m', 'pip', 'install', '-e', '.')
 
   remote = args.remote
   if not args.remote:
