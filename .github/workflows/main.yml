@@ -22,5 +22,5 @@ jobs:
     - name: Push Docker
       run: |
         docker tag runsascoded/nbconvert-action runsascoded/nbconvert-action:${{ steps.extract_branch.outputs.branch }}
-        docker login -p ${{ secrets.DOCKER_HUB_TOKEN }}
+        docker login -u runsascoded -p ${{ secrets.DOCKER_HUB_TOKEN }}
         docker push runsascoded/nbconvert-action:${{ steps.extract_branch.outputs.branch }}
