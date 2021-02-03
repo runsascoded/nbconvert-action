@@ -48,7 +48,7 @@ def main():
     remote = line('git','remote')
     print(f'Using sole remote: {remote}')
 
-  branch = args.branch or line('git','branch')
+  branch = args.branch or line('git','symbolic-ref','-q','--short','HEAD')
 
   upstream = args.upstream
   if upstream:
