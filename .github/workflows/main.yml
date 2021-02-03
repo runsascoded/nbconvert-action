@@ -24,3 +24,6 @@ jobs:
         docker tag runsascoded/nbconvert-action runsascoded/nbconvert-action:${{ steps.extract_branch.outputs.branch }}
         docker login -u runsascoded -p ${{ secrets.DOCKER_HUB_TOKEN }}
         docker push runsascoded/nbconvert-action:${{ steps.extract_branch.outputs.branch }}
+        if [ ${{ steps.extract_branch.outputs.branch }} == "main" ]; then
+          docker push runsascoded/nbconvert-action
+        fi
