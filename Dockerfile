@@ -1,7 +1,7 @@
-FROM python:3.8.6
+ARG PYTHON_VERSION=3.8.6
+FROM python:${PYTHON_VERSION}
 RUN pip install --upgrade pip
-RUN pip install nbformat nbconvert jupyter-client ipykernel papermill
-RUN python -m ipykernel install --name 3.8.6
+RUN pip install nbformat nbconvert jupyter papermill
 RUN jupyter kernelspec list
 ADD args_parser.py convert.py run.py /
 ENV PATH=.:$PATH
