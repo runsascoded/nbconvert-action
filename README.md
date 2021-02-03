@@ -33,9 +33,9 @@ Many of these behaviors are configurable; see [`convert.py`](convert.py) or `con
 convert.py -h
 ```
 
-    usage: convert.py [-h] [--args ARGS] [-a] [-b BRANCH] [-e EMAIL] [-f] [-G]
-                      [-n NAME] [-o FMT] [-p REPOSITORY] [-r REMOTE] [-u UPSTREAM]
-                      [-t TOKEN] [-x]
+    usage: convert.py [-h] [--args ARGS] [-a] [-b BRANCH] [-d PIP_DEPS] [-e EMAIL]
+                      [-f] [-G] [-i] [-n NAME] [-o FMT] [-p REPOSITORY]
+                      [-r REMOTE] [-u UPSTREAM] [-t TOKEN] [-x]
                       [path [path ...]]
     
     positional arguments:
@@ -57,12 +57,16 @@ convert.py -h
       -b BRANCH, --branch BRANCH
                             Current Git branch (and push target for any changes;
                             default: $GITHUB_HEAD_REF)
+      -d PIP_DEPS, --pip_deps PIP_DEPS
+                            Comma-separated list of pip dependencies to install
       -e EMAIL, --email EMAIL
                             user.email for Git commit
       -f, --force           Run nbconvert on .ipynb files even if they don't seem
                             changed since the base revision
       -G, --no_git          When set, skip attempting to Git commit+push any
                             changes
+      -i, --in_place        When set along with -x/--execute, overwrite notebooks
+                            in-place with their executed versions
       -n NAME, --name NAME  user.name for Git commit
       -o FMT, --fmt FMT     Format to convert files to (passed to nbconvert;
                             default: markdown)
